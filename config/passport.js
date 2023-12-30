@@ -2,7 +2,6 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const connection = require("./database");
 const { validatePassword } = require("../lib/passwordUtils");
-// const User = require("../models/UserModel");
 const User = connection.models.User;
 
 const customFields = {
@@ -11,13 +10,15 @@ const customFields = {
 };
 
 const verifyCallback = (username, password, done) => {
+  console.log("8:", username);
+  console.log("9:", password);
   User.findOne({ username: username })
     .then((user) => {
       if (!user) {
         return done(null, false);
       }
       console.log("1:", user);
-      const isValid = validatePassword(password);
+      const isValid = validatePassword(password, user.password);
       if (isValid) {
         return done(null, user);
       } else {

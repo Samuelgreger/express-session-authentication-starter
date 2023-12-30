@@ -2,33 +2,53 @@ const router = require("express").Router();
 const passport = require("passport");
 const { genPassword } = require("../lib/passwordUtils");
 const connection = require("../config/database");
-// const User = require("../models/UserModel");
 const User = connection.models.User;
 /**
  * -------------- POST ROUTES ----------------
  */
 
-// TODO
-router.post("/login", passport.authenticate("local"), (req, res, next) => {});
+router.post(
+  "/login",
+  // Calls the local strategy callback function (./config/passport.js -> verifyCallback())
+  passport.authenticate("local", {
+    failureRedirect: "/login-failure",
+    successRedirect: "/login-success",
+  })
+  // no need for login logig and all that because it is in the passport.authenticate()
+);
 
-// TODO
 router.post("/register", async (req, res, next) => {
-  const password = req.body.password;
-  const hashedPassword = await genPassword(password);
+  try {
+    const { username, password } = req.body.password;
+    // TODO implement validation logic here like in the one without passport
+    if (!username || !password) {
+      throw new Error("Missing username or password");
+    }
 
-  console.log("6:", hashedPassword);
+    const hashedPassword = await genPassword(password);
 
-  const newUser = new User({
-    username: req.body.username,
-    password: hashedPassword,
-  });
+    // todo check if user exists already
 
-  console.log("4:", newUser);
+    throw new Error("Error message");
 
-  newUser.save().then((user) => {
-    console.log("5:", user);
-    res.redirect("/login");
-  });
+    // res.send("Registration test msg");
+
+    console.log("6:", hashedPassword);
+
+    const newUser = new User({
+      username: req.body.username,
+      password: hashedPassword,
+    });
+
+    console.log("4:", newUser);
+
+    newUser.save().then((user) => {
+      console.log("5:", user);
+      res.redirect("/login");
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
