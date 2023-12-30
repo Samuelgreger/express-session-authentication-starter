@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const session = require("express-session");
 var passport = require("passport");
-// var crypto = require("crypto");
 var routes = require("./routes");
 const connection = require("./config/database");
 
@@ -69,6 +68,19 @@ app.use((req, res, next) => {
 // Imports all of the routes from ./routes/index.js
 app.use(routes);
 
+/**
+ * -------------- Error Handler ----------------
+ */
+// TODO import from lib/errorHandlers.js or somewhere else
+const errorHandler = (err, req, res, next) => {
+  console.log("Error:", err.stack);
+  res.status(500).json({
+    error: err,
+    message: err.message,
+  });
+};
+
+app.use(errorHandler);
 /**
  * -------------- SERVER ----------------
  */
